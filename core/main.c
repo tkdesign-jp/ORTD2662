@@ -102,8 +102,8 @@ void main()
         (TCON_HSTA >> 8));   // Set signal start pixel number high
     ScalerWritePortByte(S_TCON_PORT, SP_TCON_HEND_LO(1), TCON_HEND); // Set signal stop pixel number low
     // Control register for TCON[1]
-    ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL(1), 7, 0b1); // Enable TCON[0]
-    ScalerWritePortBits(S_TCON_PORT, SP_TCON_CONTROL(1), 0, 3, 0b000); // Data inversion mode (?)
+    ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL(1), 7, 0b1); // Enable TCON[1]
+    ScalerWritePortBits(S_TCON_PORT, SP_TCON_CONTROL(1), 0, 3, 0b000); // Normal output
 #endif
 
     while(1) ; // Wait on overlay output

@@ -45,7 +45,68 @@ void main()
     SetGPIO(MIRROR_VERTICAL_PIN, VER_MIRRROR);
 
     InitScaler();
-    SetOverlayColor(0xff, 0xff, 0x00);
+    SetOverlayColor(0xff, 0xff, 0xff);
+
+/////////////////////////////////////
+
+    // TODO: Modify scaler_registers.h to use these macro names
+#   define SP_TCON_VSTA_LO(n)       (0x08 + n * 8) // TCON[n] Vertical Start LByte
+#   define SP_TCON_VEND_VSTA_HI(n)  (0x09 + n * 8) // TCON[n] Vertical End/Start HByte
+#   define SP_TCON_VEND_LO(n)       (0x0A + n * 8) // TCON[n] Vertical End LByte
+#   define SP_TCON_HSTA_LO(n)       (0x0B + n * 8) // TCON[n] Horizontal Start LByte
+#   define SP_TCON_HEND_HSTA_HI(n)  (0x0C + n * 8) // TCON[n] Horizontal End/Start HByte
+#   define SP_TCON_HEND_LO(n)       (0x0D + n * 8) // TCON[n] Horizontal End LByte
+#   define SP_TCON_CONTROL(n)       (0x0E + n * 8) // TCON[n] Control
+
+#   define TCON_VSTA (PANEL_V_SYNC_WIDTH + PANEL_V_BACK_PORCH - 1)
+#   define TCON_VEND (PANEL_V_SYNC_WIDTH + PANEL_V_BACK_PORCH + PANEL_V_ACTIVE + 1)
+#   define TCON_HSTA (0x000)
+#   define TCON_HEND (0xFFF)
+
+    SetGPIOShare(PIN097, 0b100); // DVS on pin 97
+    SetGPIOShare(PIN096, 0b100); // DCK on pin 96
+    ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL0, 7, 0b1); // Enable timing controller function
+
+    // Vertical timings for TCON[0]
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VSTA_LO(0), TCON_VSTA); // Set signal start line number low
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VEND_VSTA_HI(0),
+        ((TCON_VEND & 0xF00) >> 4) | // Set signal stop line number high
+        (TCON_VSTA >> 8));   // Set signal start line number high
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VEND_LO(0), TCON_VEND); // Set signal stop line number low
+    // Horizontal timings for TCON[0]
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HSTA_LO(0), TCON_HSTA); // Set signal start pixel number low
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HEND_HSTA_HI(0),
+        ((TCON_HEND & 0xF00) >> 4) | // Set signal stop pixel number high
+        (TCON_HSTA >> 8));   // Set signal start pixel number high
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HEND_LO(0), TCON_HEND); // Set signal stop pixel number low
+    // Control register for TCON[0]
+    ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL(0), 7, 0b1); // Enable TCON
+    ScalerWritePortBits(S_TCON_PORT, SP_TCON_CONTROL(0), 0, 3, 0b100); // Invert data bus when TCON[0] is 0
+
+/////////////////////////////////////
+
+#if 0
+    // Set TCON[1] to TCON[0] and output to extra pin for debugging
+
+    SetGPIOShare(PIN065, 0b100);
+    // Vertical timings for TCON[1]
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VSTA_LO(1), TCON_VSTA); // Set signal start line number low
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VEND_VSTA_HI(1),
+        ((TCON_VEND & 0xF00) >> 4) | // Set signal stop line number high
+        (TCON_VSTA >> 8));   // Set signal start line number high
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_VEND_LO(1), TCON_VEND); // Set signal stop line number low
+    // Horizontal timings for TCON[1]
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HSTA_LO(1), TCON_HSTA); // Set signal start pixel number low
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HEND_HSTA_HI(1),
+        ((TCON_HEND & 0xF00) >> 4) | // Set signal stop pixel number high
+        (TCON_HSTA >> 8));   // Set signal start pixel number high
+    ScalerWritePortByte(S_TCON_PORT, SP_TCON_HEND_LO(1), TCON_HEND); // Set signal stop pixel number low
+    // Control register for TCON[1]
+    ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL(1), 7, 0b1); // Enable TCON[0]
+    ScalerWritePortBits(S_TCON_PORT, SP_TCON_CONTROL(1), 0, 3, 0b000); // Data inversion mode (?)
+#endif
+
+    while(1) ; // Wait on overlay output
 
     // On screen display example
     OSDInit();

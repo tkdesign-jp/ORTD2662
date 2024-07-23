@@ -5,7 +5,7 @@
 /**
  * Panel interface select
 **/
-#define PANEL_TYPE LVDS
+#define PANEL_TYPE TTL
 #define PANEL_18_BIT      FALSE
 #define PANEL_DOUBLE_PORT FALSE // Only applicable when PANEL_TYPE==LVDS
 

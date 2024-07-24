@@ -65,6 +65,8 @@ void main()
 
     SetGPIOShare(PIN097, 0b100); // DVS on pin 97
     SetGPIOShare(PIN096, 0b100); // DCK on pin 96
+    ScalerWritePortBit(S_VDISP_PORT, SP_VDISP_TIMING, 1, 0b1); // Enable DCK output
+    ScalerWritePortBit(S_VDISP_PORT, SP_VDISP_TIMING, 0, 0b0); // Don't invert DCK polarity
     ScalerWritePortBit(S_TCON_PORT, SP_TCON_CONTROL0, 7, 0b1); // Enable timing controller function
 
     // Vertical timings for TCON[0]

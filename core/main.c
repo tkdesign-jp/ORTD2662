@@ -130,7 +130,8 @@ void main()
 
     // Adjust HStart, VStart, HDelay, VDelay if picture is shifted
     SetCaptureWindow(0, 0, hact, vact, 1, 1);
-    SetFIFOWindow(hact, vact);
+    // Set FIFO window to the minimum of input resolution and output resolution
+    SetFIFOWindow(PANEL_H_ACTIVE < hact ? PANEL_H_ACTIVE : hact, PANEL_V_ACTIVE < vact ? PANEL_V_ACTIVE : vact);
 
     // Measure in analog mode for Frequencies
     MeasureSignal(0);

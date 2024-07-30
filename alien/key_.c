@@ -257,37 +257,34 @@ void CGetADCValue(BYTE *pBuf)
 
 	XSFRWriteByte(MCU_ADC_ACONTROL_FF08,  0x82);			//start adc convert(STRT_ADC_ACKT=1)
 
-	while(MCU_ADC_ACONTROL_FF08 & 0x80)
-	{
-		_nop_();
-	}
+	while(MCU_ADC_ACONTROL_FF08 & 0x80) ;
 
 #if(AD_KEY0 != MCU_ADC_NONE)
-	p = (0xFF09 + AD_KEY0);
+	p = (BYTE xdata *)(0xFF09 + AD_KEY0);
 	pBuf[i] = *p;
     i++;
 #endif
 
 #if(AD_KEY1 != MCU_ADC_NONE)
-	p = (0xFF09 + AD_KEY1);
+	p = (BYTE xdata *)(0xFF09 + AD_KEY1);
 	pBuf[i] = *p;
     i++;
 #endif
 
 #if(AD_KEY2 != MCU_ADC_NONE)
-	p = (0xFF09 + AD_KEY2);
+	p = (BYTE xdata *)(0xFF09 + AD_KEY2);
 	pBuf[i] = *p;
     i++;
 #endif
 
 #if(AD_KEY3 != MCU_ADC_NONE)
-	p = (0xFF09 + AD_KEY3);
+	p = (BYTE xdata *)(0xFF09 + AD_KEY3);
 	pBuf[i] = *p;
     i++;
 #endif
 
 #if(AD_KEY4 != MCU_ADC_NONE)
-	p = (0xFF09 + AD_KEY4);
+	p = (BYTE xdata *)(0xFF09 + AD_KEY4);
 	pBuf[i] = *p;
 #endif
 

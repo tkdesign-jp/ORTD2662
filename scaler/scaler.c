@@ -82,7 +82,7 @@ int8_t SetAPLLFrequncy(uint32_t pixelClock, uint16_t linePixelCount)
     int8_t   apllK; // 4 bit
     uint16_t apllMK; // Temporary value holding integer M and fractional K
     if (pixelClock < 5*MHZ) // TODO: Check N codes
-        return;
+        return 0;
     else if (pixelClock < 100*MHZ)
         { apllN = 3; apllDiv = 1; } // apllDiv is 1/2
     else if (pixelClock < 200*MHZ)

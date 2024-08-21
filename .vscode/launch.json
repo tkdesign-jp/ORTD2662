@@ -13,7 +13,7 @@
             "name": "Debug Native Build",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/output_native/native",
+            "program": "${workspaceFolder}/output_native/native.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

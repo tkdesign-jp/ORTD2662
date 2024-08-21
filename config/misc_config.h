@@ -4,7 +4,7 @@
 
 // Screen mirroring (if supported)
 #define HOR_MIRRROR TRUE
-#define VER_MIRRROR FALSE
+#define VER_MIRRROR TRUE
 
 // Infrared Remote Control
 #define IR_PROTOCOL IR_NEC // Possible values: IR_NEC, IR_RC5

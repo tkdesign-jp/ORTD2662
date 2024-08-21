@@ -29,26 +29,26 @@
 //
 
 // Panel pixel clock (aka data clock) (Hz)
-#define PANEL_DCLK          51200000UL // NOTE:  for my display 40.8 - min; 67.2 - max
+#define PANEL_DCLK          33000000UL // NOTE:  for my display 40.8 - min; 67.2 - max
 
 // Horizontal timings
-#define PANEL_H_SYNC_WIDTH  64     // HPW
-#define PANEL_H_BACK_PORCH  96    // HBP
-#define PANEL_H_ACTIVE      1024   // HACT, AKA: Horizontal resolution
-#define PANEL_H_FRONT_PORCH 160    // HFP
+#define PANEL_H_SYNC_WIDTH  41     // HPW
+#define PANEL_H_BACK_PORCH  82     // HBP
+#define PANEL_H_ACTIVE      800    // HACT, AKA: Horizontal resolution
+#define PANEL_H_FRONT_PORCH 4      // HFP
 
 // Vertical timings
-#define PANEL_V_SYNC_WIDTH  5      // VPW
-#define PANEL_V_BACK_PORCH  10     // VBP
-#define PANEL_V_ACTIVE      600    // VACT, AKA: Vertical resolution
-#define PANEL_V_FRONT_PORCH 20      // VFP
+#define PANEL_V_SYNC_WIDTH  6      // VPW
+#define PANEL_V_BACK_PORCH  27     // VBP
+#define PANEL_V_ACTIVE      480    // VACT, AKA: Vertical resolution
+#define PANEL_V_FRONT_PORCH 22     // VFP
 
 /**
  * Panel signal polarity and data order
 **/
 #define PANEL_INVERT_DCLK       FALSE
-#define PANEL_INVERT_DHS        FALSE
-#define PANEL_INVERT_DVS        FALSE
+#define PANEL_INVERT_DHS        TRUE   //BRICE FALSE
+#define PANEL_INVERT_DVS        TRUE   //BRICE FALSE
 #define PANEL_INVERT_DEN        FALSE
 
 #define PANEL_SWAP_BIT_ORDER    FALSE

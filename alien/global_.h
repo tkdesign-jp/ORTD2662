@@ -464,6 +464,9 @@ If you select SV port, we only support,  V0 with V1 or V1 with V2 or V2 with V3.
 #endif
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "peripherals/xsfr.h"
 void delayMS(uint32_t ms);
 #define CTimerDelayXms(__t) delayMS(__t)
 

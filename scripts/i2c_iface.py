@@ -4,8 +4,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__+"../../.."))+"/RTDMulti
 import rtdmultiprog
 
 
-interface = "i2cdev"
-device = 2
+interface = "ch341"
+device = 0
 settings = ""
 
 

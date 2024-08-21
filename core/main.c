@@ -108,8 +108,6 @@ void main()
     ScalerWritePortBits(S_TCON_PORT, SP_TCON_CONTROL(1), 0, 3, 0b000); // Normal output
 #endif
 
-    while(1) ; // Wait on overlay output
-
     // On screen display example
     OSDInit();
     char* entries[]= { "scaling", "other" };

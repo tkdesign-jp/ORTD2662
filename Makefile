@@ -14,15 +14,16 @@ SRCFILES := $(wildcard ./*/*.c)
 # File that has the main() function
 MAINFILE := core/main.c
 #
-PROGRAMMER := python3 ../RTDMultiProg/rtdmultiprog.py -i i2cdev -d 2 -w
+PROGRAMMER := python ../RTDMultiProg/rtdmultiprog.py -i ch341 -d 0 -w
 
 
 # Native compiler
 ifeq ($(OS),Windows_NT) # Windows tools
+NATIVE_PY_PATH   = $(subst \python.exe,,$(subst [1],,$(shell where /F python | find /N "\" | findstr "\[1\]")))
 NATIVE_PKGCFG    =
 NATIVE_CC        = gcc
-NATIVE_CFLAGS 	 = -I. -MMD -ggdb3
-NATIVE_LDFLAGS   = -Lcore -lch341
+NATIVE_CFLAGS 	 = -I. -I$(NATIVE_PY_PATH)/include -MMD -ggdb3
+NATIVE_LDFLAGS   = -L$(NATIVE_PY_PATH) -lpython3
 NATIVE_OUTPUTDIR = output_native
 else
 NATIVE_PKGCFG    = pkg-config

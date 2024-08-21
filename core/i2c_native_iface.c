@@ -2,9 +2,9 @@
 // NOTE: XSFRWriteByte and XSFRReadByte declarations are in xsfr.h
 #ifndef __SDCC
 
-#if 0
+#if 1
 #define RTDMULTIPROG_PATH "../RTDMultiProg"
-#define INTERFACE   "i2cdev"
+#define INTERFACE   "ch341"
 #define DEVICE      0
 #define SETTINGS    ""
 

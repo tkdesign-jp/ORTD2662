@@ -1,3 +1,7 @@
+MSYS_VERSION := $(if $(findstring Msys, $(shell uname -o)),$(word 1, $(subst ., ,$(shell uname -r))),0)
+ifneq ($(MSYS_VERSION),0)
+OS = MSYS2
+endif
 ifeq ($(OS),Windows_NT) # Windows tools
 PATH:=C:/tools/msys64/mingw32/bin:${PATH}
 RMDIR = -cmd /C rd /S /Q # Ignore "cannot find the file" error

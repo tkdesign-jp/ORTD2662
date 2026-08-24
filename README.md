@@ -1,3 +1,12 @@
+> **Fork note:** This fork ports ORTD2662 to the **X@RTD2662 board + Toshiba
+> LTM09C362V (1024x600 LVDS)** panel, running as a standalone HDMI monitor
+> (verified on Raspberry Pi 3B, Orange Pi PC2, and Raspberry Pi 1).
+> Build/flash instructions, wiring, and the full list of findings are in
+> **[PORT_NOTES.md](PORT_NOTES.md)**.
+> （日本語の移植記録も PORT_NOTES.md にあります）
+
+---
+
 # ORTD2662
 
 An (unsuccessful) attempt to create open source firmware for RTD2662 from scratch.

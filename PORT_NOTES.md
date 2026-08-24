@@ -15,6 +15,34 @@ different HDMI sources with zero source-side configuration:
 To our knowledge this is the first documented third-party port of ORTD2662
 to a different board and panel.
 
+This was a *very* long-dormant project: the board is date-stamped **2010/1**
+on the back, bought as a board+panel kit shortly after release and left in a
+drawer for about 17 years before finally being brought to life.
+
+## Wiring (how to talk to the board)
+
+The board has no dedicated programming header; it is flashed over the
+scaler's I2C, which is exposed on the **VGA (D-Sub 15) connector's DDC
+pins**. A Raspberry Pi drives that I2C through a bidirectional
+**MOSFET logic-level shifter** (the common BSS138 type).
+
+The board's I2C lines measured **4.8 V** (tested with a multimeter), so they
+go on the shifter's **high-voltage (HV)** side; the Pi's 3.3 V I2C goes on
+the **low-voltage (LV)** side.
+
+```
+[Pi GPIO]          [shifter LV]     [shifter HV]     [D-Sub 15]
+3.3V  (pin 1) ───── LV
+5V    (pin 2) ─────────────────────── HV
+GND   (pin 6) ───── GND ───────────── GND ────────── pin 6  (GND)
+SDA   (pin 3) ───── LV1          HV1 ─────────────── pin 12 (SDA / DDC data)
+SCL   (pin 5) ───── LV2          HV2 ─────────────── pin 15 (SCL / DDC clock)
+```
+
+This uses the Pi's hardware I2C bus (`/dev/i2c-1`), which is why the
+RTDMultiProg commands below use `-d 1`. The panel still needs its own 12 V
+supply for the display/backlight; that is separate from this I2C link.
+
 ## Build & flash
 
 Plain SDCC (tested 4.2.0), no other dependencies:
@@ -127,6 +155,33 @@ a paid toolchain. 感謝！
 
 確認できた範囲では、これはORTD2662を別の基板・別のパネルに移植して
 文書化した最初の事例です。
+
+これは *非常に* 長く塩漬けにされたプロジェクトでした。基板の裏には
+**2010/1** の製造刻印があり、発売直後に基板+パネルのキットとして購入した後、
+約17年間引き出しで眠っていたものを、ようやく蘇らせました。
+
+## 配線 (基板との通信方法)
+
+この基板には専用の書き込みヘッダがなく、スケーラのI2C経由で書き込む。
+そのI2Cは **VGA (D-Sub 15) コネクタのDDCピン** に出ている。Raspberry Pi
+から、双方向の **MOSFETロジックレベル変換モジュール** (よくあるBSS138タイプ)
+を介してこのI2Cを駆動する。
+
+基板側のI2Cラインはテスターで **4.8V** を実測したため、変換モジュールの
+**高圧側 (HV)** に接続する。Piの3.3V I2Cは **低圧側 (LV)** へ。
+
+```
+[Pi GPIO]          [変換 LV側]      [変換 HV側]      [D-Sub 15]
+3.3V  (pin 1) ───── LV
+5V    (pin 2) ─────────────────────── HV
+GND   (pin 6) ───── GND ───────────── GND ────────── pin 6  (GND)
+SDA   (pin 3) ───── LV1          HV1 ─────────────── pin 12 (SDA / DDC data)
+SCL   (pin 5) ───── LV2          HV2 ─────────────── pin 15 (SCL / DDC clock)
+```
+
+Piのハードウェア I2C バス (`/dev/i2c-1`) を使用しており、これが下記の
+RTDMultiProg コマンドで `-d 1` を指定している理由。表示/バックライトのため
+パネルには別途12V電源が必要で、これはこのI2C接続とは別系統。
 
 ## ビルドと書き込み
 

@@ -106,3 +106,116 @@ Huge thanks to **KerJoe** for ORTD2662 and RTDMultiProg. A from-scratch,
 plain-SDCC, readable firmware for these scalers is what made this port
 possible at all — the vendor Keil source tree does not even build without
 a paid toolchain. 感謝！
+
+---
+
+# 日本語版 / Japanese
+
+# 移植記録: X@RTD2662 基板 + 東芝 LTM09C362V (1024x600)
+
+このフォークは [KerJoe/ORTD2662](https://github.com/KerJoe/ORTD2662) を、
+汎用 **X@RTD2662** コントローラ基板 + **東芝 LTM09C362V**
+(9.0インチ 1024x600 18bit 1ch LVDS パネル) の組み合わせに移植し、
+単体HDMIモニタとして使えるようにしたものです。
+
+ステータス: **完全動作。** ファームがネイティブの 1024x600@60.15 EDID を
+提供し、表示は1:1ピクセルパーフェクト、色も正常です。ソース側の設定を
+一切変更せず、2種類の異なるHDMIソースで動作を確認しました:
+
+* Raspberry Pi 3B (Raspberry Pi OS, vc4-kms-v3d)
+* Orange Pi PC2 (Armbian 26.2.5)
+
+確認できた範囲では、これはORTD2662を別の基板・別のパネルに移植して
+文書化した最初の事例です。
+
+## ビルドと書き込み
+
+素のSDCC (4.2.0で確認) のみ、他の依存なし:
+
+```
+make firmware          # -> output/firmware.bin (32 KB)
+```
+
+動作確認済みビルドの md5: `dab06e957b8bca27de369c9ab5abb3cb`
+
+書き込みは [RTDMultiProg](https://github.com/KerJoe/RTDMultiProg) を使用
+(ここでは Raspberry Pi のI2Cを基板のHDMI DDCピンに接続):
+
+```
+python3 rtdmultiprog.py -i i2cdev -d 1 -w firmware.bin
+python3 rtdmultiprog.py -i i2cdev -d 1 -r verify.bin -z 32768 && md5sum verify.bin
+```
+
+書き込み前に純正ファームの完全ダンプを必ず取得しておくこと
+(`-r dump.bin -z 524288`)。復元は `-w dump.bin` 一発です。
+
+## 変更したファイル
+
+* `config/panel_config.h` — LTM09C362Vのタイミング (1024x600、DCLK 49.088 MHz、
+  HTotal 1312 / VTotal 622、18bit、ビット順スワップなし)。
+* `config/board_config.h`, `config/misc_config.h` — 基板固有の設定。
+* `peripherals/ddc.c` — `testEDID` をパネルネイティブの
+  1024x600@60.15 EDID に置き換え (DTD: 49.09 MHz, H 1024/40/104/144, V 600/3/10/9)。
+* `core/main.c` — この基板用のバックライト/パネル電源GPIOの起動、
+  純正リファレンスコードから移植したガンマLUT + ディザ初期化、
+  垂直取り込み窓のオフセット (V開始 = 18行)。
+* `scaler/scaling.c` — 1:1のときUZDラインバッファをバイパス
+  (`BUFFER_MODE=00`, `SBUFF_EXT=0`)。`SBUFF_EXT` を使うバッファ経路は
+  実際に縮小するときだけ設定する (下記参照)。
+* `scaler/scaler.c` — `SetDPLLFrequncy()` を高VCO構成
+  (DPN=8, 出力Div4, VCO ≈ 400 MHz) に変更 (10–100 MHz範囲)。
+  純正ファームが実機で使っている構成に合わせた (実機実測による)。
+* `scaler/scaler_tables.c` — LVDS制御レジスタの初期化。**丸一日を溶かした
+  あの1ビット** を含む (下記の知見1)。
+
+## 何日も節約できるかもしれない知見
+
+1. **TCONレジスタ 0xA3 (LVDS_CTRL3) の bit0 = BMTS、LVDSビットマッピング
+   テーブル選択。これはパネル依存で、リセット既定値があなたのパネルには
+   間違っている可能性がある。** LTM09C362VはTable 2 (bit0 = 1) が必要。
+   既定のTable 1では *中間階調のピクセルだけが化ける* —— アンチエイリアス
+   された文字にピクセル単位の色ノイズが乗る —— のに、純粋な 0x00/0xFF の
+   コンテンツ (1px縞パターン、ベタ色帯) は **完璧に** 映る。チャンネルの
+   全ビットが等しいときはビット位置の入れ替えが不可視になるため。この
+   バグは古典的なテストパターンにほぼ引っかからない。文字には色ノイズが
+   出るのにあらゆる縞テストを通過してしまう場合は、BMTSのもう一方の
+   テーブルを試すこと。
+
+2. **LVDS_CTRL1 (TCON 0xA1) の下位ビットはdon't-careではない。** 上流の
+   `DisplayInitTable` は `0xC0` (クロック極性反転の2ビット) を書くが、
+   これは同時にSTSTL (既定010) とLVDS出力コモンモード設定 (既定100) を
+   ゼロにしてしまう。このパネルではそれが目に見えるフリッカーを生じた。
+   データシート既定の下位ビットを復元 (`0xD4`) すると解消。純正ファームは
+   `0xD7` (コモンモード111) で動作しており、こちらでは両方とも安定。
+
+3. **UZDの「2-tap」(page 6, 0xE3 bit4) は画像フィルタではなく SBUFF_EXT** で、
+   ラインバッファ幅の拡張 (960 → 1920 px、RTD2660データシート p150-151)。
+   バッファ経路では960pxを超える幅に必須 (クリアすると画像が巻き込む)。
+   1:1のときの正しい構成は、バッファを経路から完全に外すこと
+   (`BUFFER_MODE=00`)。純正ファームもそうしている。
+
+4. **ファームが提供するEDIDだけで十分。** 有効なDTDがあれば、Raspberry
+   Pi OS (KMS) も Armbian も `config.txt` やカーネルcmdlineの上書きなしで
+   パネルネイティブモードを選ぶ。以前の実験で `hdmi_timings=`、
+   `hdmi_ignore_edid=`、`drm.edid_firmware=` の上書きが残っていたら削除する
+   こと —— 古い592行の上書きが残っていて数時間溶かした (垂直スケーリングを
+   こっそり再有効化して文字をにじませる)。
+
+5. **この基板のバックライトは、よくあるPCB800099系のP3_3/P3_4ではない**
+   (このピンはここではビットバンギングのI2Cバス)。スケーラのGPIO群を
+   出力に設定してLowに駆動する必要がある。`core/main.c` 参照。
+
+## 既知の軽微な問題
+
+入力 (60.15 Hz) と出力 (60.00 Hz, VTotal 625) がフレームロックしておらず、
+1pxの市松テストパターンでゆっくり流れるうなり線が見える (通常のコンテンツ
+では不可視)。出力VTotalを入力から導出する (622) とロックするはず ——
+TODOとして残している。
+
+## 謝辞
+
+**KerJoe** 氏の ORTD2662 と RTDMultiProg に心から感謝します。これらの
+スケーラ向けに、ゼロから書かれた・素のSDCCでビルドできる・読みやすい
+ファームウェアが存在したことが、この移植を可能にした全てです ——
+純正のKeilソースツリーは有償ツールチェーンなしではビルドすらできません。
+感謝！

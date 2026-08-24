@@ -3,7 +3,7 @@
 #include "core/config_defines.h"
 
 // Screen mirroring (if supported)
-#define HOR_MIRRROR TRUE
+#define HOR_MIRRROR FALSE
 #define VER_MIRRROR FALSE
 
 // Infrared Remote Control

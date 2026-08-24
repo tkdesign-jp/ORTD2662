@@ -8,4 +8,4 @@ __pycache__/
 *$py.class
 
 # Ignore VS Code configuration
-#.vscode
+#.vscode.DS_Store

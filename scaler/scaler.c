@@ -28,9 +28,9 @@ void SetDPLLFrequncy(uint32_t outFreq)
     else if (outFreq < 10*MHZ)
         { dpllN = 5;  dpllDiv = 3; } // dpllDiv is 1/8
     else if (outFreq < 50*MHZ)
-        { dpllN = 5;  dpllDiv = 1; } // dpllDiv is 1/2
+        { dpllN = 8;  dpllDiv = 2; } // v31: 高VCO構成(純正同型 DPN=8,Div4) VCO≈400MHzで低ジッタ
     else if (outFreq < 100*MHZ)
-        { dpllN = 6;  dpllDiv = 1; } // dpllDiv is 1/2
+        { dpllN = 8;  dpllDiv = 2; } // v31: 高VCO構成(純正同型 DPN=8,Div4)
     else
         { dpllN = 12; dpllDiv = 0; } // dpllDiv is 1/1
 

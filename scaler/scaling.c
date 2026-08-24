@@ -147,9 +147,15 @@ void ScaleDown(uint16_t inWidth, uint16_t inHeight, uint16_t outWidth, uint16_t 
     ScalerWriteByte(S6_UZD_HOR_SEGMENT2_HI, outWidth >> 8);
     ScalerWriteByte(S6_UZD_HOR_SEGMENT2_LO, outWidth);
 
-    //
-    ScalerWriteBit(S6_UZD_CONTROL0, 4, 0b1);
-    ScalerWriteBits(S6_UZD_CONTROL1, 2, 2, 0b10);
+    // 縮小の有無でラインバッファの扱いを切り替える（RTD2660データシート p151, 純正CModeSetScaling準拠）
+    //  縮小なし: BUFFER_MODE=00(バイパス) + SBUFF_EXT=0 -> バッファを経路から外す(2-tap混合が起きない)
+    //  縮小あり: BUFFER_MODE=10(垂直UZD) + SBUFF_EXT=(小さい側の幅>960)
+    {
+        uint8_t down = (inWidth > outWidth) || (inHeight > outHeight);
+        uint16_t minW = (inWidth < outWidth) ? inWidth : outWidth;
+        ScalerWriteBits(S6_UZD_CONTROL1, 2, 2, down ? 0b10 : 0b00);
+        ScalerWriteBit(S6_UZD_CONTROL0, 4, (down && (minW > 960)) ? 1 : 0);
+    }
 
     // If input and output resolutions are different, enable scaling
     ScalerWriteBit(S6_UZD_CONTROL0, 0, (inWidth  > outWidth));

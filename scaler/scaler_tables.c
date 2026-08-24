@@ -45,8 +45,16 @@ const uint8_t DisplayInitTable[] =
     1,  AUTOINC_DIS,    S_TCON_ADDRESS,     SP_TCON_CONTROL0,
     1,  AUTOINC_DIS,    S_TCON_PORT,        PANEL_TYPE & 1,     // Set display type
     1,  AUTOINC_DIS,    S_TCON_ADDRESS,     SP_LVDS_CONTROL0,
-    2,  AUTOINC_DIS,    S_TCON_PORT,        (0b11 << 4),        // Power up LVDS ports
-                                            (0b11 << 6),        // Inverse BCKPOLARL and DCKPOLARL // TODO: What does it do?... test
+    4,  AUTOINC_DIS,    S_TCON_PORT,        (0b11 << 4),        // A0: Power up LVDS ports
+                                            0xD4,               // A1: Keep BCK/DCK inversion + restore datasheet
+                                                                //     defaults for STSTL(010)/common-mode(100).
+                                                                //     Writing 0xC0 here (as before) clobbers them
+                                                                //     and causes flicker on LTM09C362V.
+                                            0x43,               // A2: LVDS_CTRL2 reset default
+                                            0x1D,               // A3: LVDS_CTRL3, bit0 = BMTS bit-mapping Table 2.
+                                                                //     REQUIRED for LTM09C362V. With Table 1 (reset
+                                                                //     default) all mid-tone pixels get corrupted
+                                                                //     (invisible on 0x00/0xFF test patterns!)
 
     TABLE_END
 };

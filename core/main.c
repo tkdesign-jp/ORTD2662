@@ -48,6 +48,10 @@ void main()
     SetGPIO(MIRROR_VERTICAL_PIN, VER_MIRRROR);
 #   endif
 
+#   if (PANEL_TYPE == TTL)
+    XSFRWriteByte(PIN_SHARE_CONTROL06, 0x24); // Pin96=DCLK, Pin97=DVS
+#   endif
+
     InitScaler();
 
     // ---- ガンマ設定 (純正CAdjustGamma FULL_NORMAL, GAMMA_1, 既定index=1) ----
